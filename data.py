@@ -49,3 +49,30 @@ print('FIX')
 print(df['active'].unique())
 
 #Date parsing
+print(df['start_date'].dtype) #cek tipe data 
+
+df['start_date'] = pd.to_datetime(df['start_date'], errors="coerce") 
+df['end_date'] = pd.to_datetime(df['end_date'], dayfirst=True, errors="coerce") #benerin dg diubah ke format datetime
+
+print('FIX')
+print(df['start_date'].dtype)
+
+df = df.loc[:, ~df.columns.duplicated()] #hapus kolom duplikat yaitu clicks
+print(df.columns.tolist())
+
+#-- bbrp handling
+#jml click > jml impresi (ini seharusnya g mungkin terjadi)
+impossible_mask = df['clicks'] > df['impressions']
+print(df.loc[impossible_mask, ['campaign_id', 'clicks', 'impressions']].head(3))
+
+#time travel; end date < start date (ini seharusnya g mungkin terjadi)
+time_travel_mask = df['end_date'] < df['start_date']
+print(df.loc[time_travel_mask, ['campaign_id', 'start_date', 'end_date']].head(3))
+
+df.loc[time_travel_mask, 'end_date'] = df.loc[time_travel_mask, 'start_date'] + pd.Timedelta(days=30)
+print('FIX')
+print(df.loc[time_travel_mask, ['campaign_id', 'start_date', 'end_date']].head(3))
+
+#outlier handling
+
+#string parsing
