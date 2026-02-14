@@ -73,6 +73,20 @@ df.loc[time_travel_mask, 'end_date'] = df.loc[time_travel_mask, 'start_date'] + 
 print('FIX')
 print(df.loc[time_travel_mask, ['campaign_id', 'start_date', 'end_date']].head(3))
 
-#outlier handling
+#outlier handling // capping or winsorizing
+Q1 = df['spend'].quantile(0.25)
+Q3 = df['spend'].quantile(0.75)
+IQR = Q3 - Q1
+upper_limit = Q3 + (3 * IQR) #asumsi ; untuk outlier ekstrim
+outlier_mask = df['spend'] > upper_limit
 
-#string parsing
+print(df.loc[outlier_mask, ['campaign_id', 'spend']].head(3))
+print('FIX')
+df.loc[outlier_mask, ['spend']] = upper_limit #mengganti nilai outlier ekstrim dengan nilai batas atas yang ditetapkan
+print(df.loc[outlier_mask, ['campaign_id', 'spend']].head(3))
+
+#string parsing: extend season category
+print(df['campaign_name'].head(3)) 
+df['season'] = df['campaign_name'].str.extract(r'Q\d_([^_]+)_') #ngambil string season pada campaign_name
+print('FIX')
+print(df[['campaign_name','season']].head(3))
